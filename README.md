@@ -1,74 +1,99 @@
-# SpaceMusic — Notas y siguientes pasos
+# SpaceMusic
 
-Este MVP funciona 100% sin agregar nada: los planetas, portadas y fondo
-estelar son generados con CSS (gradientes), y las canciones se "reproducen"
-de forma simulada (la barra de progreso avanza sola). No necesitas poner
-ningún archivo para probar el flujo completo.
+> "Tu música está en otro planeta."
 
-Las carpetas `assets/images/` y `assets/audio/` están vacías a propósito,
-por si más adelante quieres reemplazar lo simulado por contenido real.
-Esto es opcional — nada de lo siguiente es necesario para que el
-prototipo funcione.
+Un MVP/prototipo frontend de una experiencia musical con temática
+espacial: lanzas un cohete, viajas a un sistema solar donde cada
+planeta es un género musical, aterrizas en uno y escuchas sus
+canciones destacadas desde un reproductor propio.
 
-## 1. Audio real por canción (opcional)
+---
 
-Ahora mismo `player.js` simula la reproducción con un contador (no usa
-`<audio>`). Si quieres que las canciones suenen de verdad:
+## Historia
 
-1. Coloca archivos `.mp3` en `assets/audio/`, por ejemplo:
-   ```
-   assets/audio/blinding-lights.mp3
-   assets/audio/as-it-was.mp3
-   ```
-2. En `js/data.js`, agrega un campo `audioSrc` a cada canción:
-   ```js
-   { title: "Blinding Lights", artist: "The Weeknd", duration: 200,
-     audioSrc: "assets/audio/blinding-lights.mp3" }
-   ```
-3. En `js/player.js` habría que crear un `new Audio()`, asignarle
-   `audio.src = song.audioSrc` en `play()`, y usar sus eventos
-   (`timeupdate`, `ended`) en vez del `setInterval` actual. Si algún día
-   quieres esto, dilo y lo conecto.
+SpaceMusic empezó en 2023 como una idea en papel: bocetos, paleta de
+colores, la metáfora de "cada género es un planeta" — pero sin la
+tecnología ni el enfoque para llevarla a producción en ese momento. El
+proyecto quedó guardado.
 
-No necesitas audio real para cada canción — puedes empezar con 1 o 2 de
-prueba y dejar el resto simulado; el reproductor ya soporta ambos casos.
+Ahora, con mejores herramientas y más foco, SpaceMusic finalmente está
+saliendo del papel. Esta primera versión es el MVP: un frontend 100%
+funcional, sin backend, que demuestra la experiencia completa —
+lanzamiento, sistema solar, selección de género y reproductor — y que
+queda listo para crecer hacia el producto real.
 
-## 2. Portadas/imágenes reales por canción o género (opcional)
+---
 
-Ahora mismo las "portadas" (planeta, ícono de género, thumbnail de
-canción, portada del reproductor) son círculos con gradiente CSS según
-el género — no hay imágenes.
+## Cómo probarlo
 
-Si quieres portadas reales:
+No necesitas instalar nada ni agregar archivos. Simplemente abre
+`index.html` en el navegador (recomendado: doble click, o click
+derecho → "Abrir con" tu navegador).
 
-1. Coloca imágenes cuadradas (ideal 300×300px o más, `.jpg`/`.png`/`.webp`)
-   en `assets/images/`, por ejemplo:
-   ```
-   assets/images/covers/blinding-lights.jpg
-   assets/images/planets/pop.jpg
-   ```
-2. Agrega el campo correspondiente en `js/data.js` (`cover` por canción,
-   o `planetTexture` por género).
-3. En `js/app.js` y `js/player.js`, donde hoy se asigna una `className`
-   con el color del género, habría que usar `background-image` con esa
-   ruta en vez del gradiente. También es un cambio puntual si lo pides.
+Todo lo visual (planetas, fondo estelar, portadas) está generado con
+CSS, y las canciones se "reproducen" de forma simulada (la barra de
+progreso avanza sola) — así se puede probar el flujo completo sin
+depender de archivos de audio reales.
 
-## 3. Logo o favicon (opcional)
+---
 
-Si quieres un ícono de pestaña del navegador, coloca un archivo
-`favicon.ico` o `favicon.png` en `assets/images/` y agrega en el
-`<head>` de `index.html`:
-```html
-<link rel="icon" href="assets/images/favicon.png" />
+## Estructura del proyecto
+
+```
+spacemusic/
+├── index.html          Estructura de las 3 vistas + reproductor
+├── css/
+│   └── style.css        Identidad visual, animaciones, responsive
+├── js/
+│   ├── data.js           Géneros y canciones (datos estáticos)
+│   ├── app.js             Estados de la SPA (landing/solar/género)
+│   └── player.js           Lógica del reproductor
+└── assets/
+    ├── images/            Recursos visuales (cohete, etc.)
+    └── audio/              (vacío por ahora — ver "Próximos pasos")
 ```
 
-## 4. Más géneros o canciones
+---
 
-No requiere ningún archivo nuevo por defecto: solo edita el arreglo
-`GENRES` en `js/data.js` y agrega objetos con la misma forma (`id`,
-`name`, `planetClass`, `tagline`, `songs`). Si agregas un género nuevo
-necesitarás también:
-- una clase de color nueva en `css/style.css` (copiando el patrón de
-  `.planet--pop`, `.planet--rock`, etc.)
-- un slot de posición nuevo en el sistema solar (`.planet--slot-6`) si
-  pasas de 6 planetas en desktop.
+## Changelog
+
+### v0.3 — Rediseño de la pantalla principal
+- El cohete pasó a ser el elemento protagonista: mucho más grande y
+  centrado (`.rocket-wrap` en `css/style.css`).
+- El texto "SpaceMusic" + el tagline dejaron de ser el titular
+  principal: ahora son un pie de página pequeño y discreto, estilo
+  copyright, fijo en la parte inferior (`.landing__footer`).
+- Se dejaron comentarios `🔧 PERSONALIZAR` en el HTML y CSS marcando
+  justo dónde tocar si se quiere ajustar tamaño o posición.
+
+### v0.2 — Cohete ilustrado real
+- Se reemplazaron las formas de CSS (cuerpo, ventana, aletas) del
+  cohete por el recurso ilustrado real, tanto en la pantalla de
+  lanzamiento como en el ícono central del sistema solar.
+- Se mantuvo la animación de flotado, el despegue y la llama (esta
+  última sigue siendo CSS, ya que el recurso no la incluía).
+
+### v0.1 — MVP inicial
+- Flujo completo: landing con cohete → despegue animado → sistema
+  solar con 6 planetas (Pop, Rock, Hip-Hop, Electrónica, Indie,
+  Latino) → vista de género con lista de canciones → reproductor fijo
+  inferior.
+- Datos de géneros/canciones como objetos JS estáticos, sin backend,
+  sin base de datos, sin autenticación.
+- Campo estelar animado, planetas con textura/iluminación propia vía
+  gradientes CSS, flotado orbital sutil, hover con glow.
+- Responsive: en desktop los planetas se distribuyen orgánicamente
+  alrededor del centro; en móvil/tablet se convierten en un carrusel
+  horizontal con scroll-snap.
+- **Fix**: los "swatches" de género (ícono en la vista de género,
+  portada en la lista de canciones, portada del reproductor)
+  reutilizaban las clases de planeta, pero las reglas CSS originales
+  solo pintaban `.planet__body` anidado — se agregaron selectores
+  directos por clase de género para que también se vean coloreados.
+
+---
+
+## Próximos pasos
+
+Ver [`PROXIMAS-ACTUALIZACIONES.md`](./PROXIMAS-ACTUALIZACIONES.md)
+para el roadmap y las tareas pendientes.
