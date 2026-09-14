@@ -16,9 +16,18 @@ const Player = (() => {
   let tickHandle = null;
   let volume = 0.7;
 
+  // =========================
+  // CONFIGURACIÓN DEL FADE
+  // =========================
+
+  // Duración del fade en milisegundos.
+  const FADE_DURATION = 300;
+
   // Audio real del navegador.
   const audio = new Audio();
   audio.volume = volume;
+
+  let fadeHandle = null;
 
   let els = {};
 
@@ -63,6 +72,49 @@ const Player = (() => {
     return !!(song && song.audioSrc);
   }
 
+  // =========================
+  // FADE
+  // =========================
+
+  function stopFade() {
+    if (fadeHandle) {
+      cancelAnimationFrame(fadeHandle);
+      fadeHandle = null;
+    }
+  }
+
+  function fadeVolume(targetVolume, duration = FADE_DURATION) {
+    stopFade();
+
+    const startVolume = audio.volume;
+    const difference = targetVolume - startVolume;
+    const startTime = performance.now();
+
+    return new Promise((resolve) => {
+      function animate(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+
+        // Suaviza el movimiento del volumen.
+        const easedProgress =
+          1 - Math.pow(1 - progress, 3);
+
+        audio.volume =
+          startVolume + difference * easedProgress;
+
+        if (progress < 1) {
+          fadeHandle = requestAnimationFrame(animate);
+        } else {
+          audio.volume = targetVolume;
+          fadeHandle = null;
+          resolve();
+        }
+      }
+
+      fadeHandle = requestAnimationFrame(animate);
+    });
+  }
+
   function render() {
     const song = currentSong();
 
@@ -71,16 +123,19 @@ const Player = (() => {
     els.title.textContent = song.title;
     els.artist.textContent = song.artist;
 
-    // Si estamos usando audio real, usamos su tiempo.
-    // Si no, usamos el contador simulado.
-    const currentTime = isRealAudio() ? audio.currentTime : elapsed;
+    const currentTime = isRealAudio()
+      ? audio.currentTime
+      : elapsed;
 
     const duration = isRealAudio()
       ? audio.duration || song.duration
       : song.duration;
 
-    els.timeCurrent.textContent = formatTime(currentTime);
-    els.timeDuration.textContent = formatTime(duration);
+    els.timeCurrent.textContent =
+      formatTime(currentTime);
+
+    els.timeDuration.textContent =
+      formatTime(duration);
 
     const pct = duration > 0
       ? Math.min(100, (currentTime / duration) * 100)
@@ -89,17 +144,19 @@ const Player = (() => {
     els.progressFill.style.width = `${pct}%`;
     els.progressHandle.style.left = `${pct}%`;
 
-    els.playBtn.classList.toggle("is-playing", isPlaying);
+    els.playBtn.classList.toggle(
+      "is-playing",
+      isPlaying
+    );
 
     els.playBtn.setAttribute(
       "aria-label",
       isPlaying ? "Pausar" : "Reproducir"
     );
 
-    // Portada según el género.
-    els.cover.className = `player-cover ${currentGenre.planetClass}`;
+    els.cover.className =
+      `player-cover ${currentGenre.planetClass}`;
 
-    // Marca la canción activa.
     document.querySelectorAll(".song-row").forEach((row) => {
       const rowIndex = Number(row.dataset.index);
 
@@ -152,36 +209,53 @@ const Player = (() => {
   // =========================
 
   function loadRealAudio(song) {
+    stopFade();
+
     audio.pause();
 
+    audio.volume = 0;
     audio.currentTime = 0;
     audio.src = song.audioSrc;
 
     audio.load();
   }
 
-  function clearRealAudio() {
-    audio.pause();
-    audio.removeAttribute("src");
-    audio.load();
-  }
-
   async function playRealAudio() {
     try {
+      audio.volume = 0;
+
       await audio.play();
+
       isPlaying = true;
       render();
+
+      // Entra suavemente.
+      await fadeVolume(volume);
+
     } catch (error) {
-      console.error("No se pudo reproducir el audio:", error);
+      console.error(
+        "No se pudo reproducir el audio:",
+        error
+      );
 
       isPlaying = false;
+      audio.volume = volume;
+
       render();
     }
   }
 
-  function pauseRealAudio() {
+  async function pauseRealAudio() {
+    // Sale suavemente.
+    await fadeVolume(0);
+
     audio.pause();
+
     isPlaying = false;
+
+    // Restauramos el volumen para la próxima reproducción.
+    audio.volume = volume;
+
     render();
   }
 
@@ -193,9 +267,15 @@ const Player = (() => {
     els.bar.classList.add("is-visible");
   }
 
-  function play(genre, index) {
+  async function play(genre, index) {
     // Detener cualquier reproducción anterior.
     stopTicking();
+    stopFade();
+
+    if (isRealAudio()) {
+      await fadeVolume(0);
+    }
+
     audio.pause();
 
     currentGenre = genre;
@@ -218,20 +298,22 @@ const Player = (() => {
     }
 
     // Canción sin MP3: simulación.
+    audio.volume = volume;
+
     startTicking();
     render();
   }
 
-  function togglePlay() {
+  async function togglePlay() {
     const song = currentSong();
 
     if (!song) return;
 
     if (isRealAudio()) {
       if (isPlaying) {
-        pauseRealAudio();
+        await pauseRealAudio();
       } else {
-        playRealAudio();
+        await playRealAudio();
       }
 
       return;
@@ -253,7 +335,8 @@ const Player = (() => {
     if (!currentGenre) return;
 
     const nextIndex =
-      (currentIndex + 1) % currentGenre.songs.length;
+      (currentIndex + 1) %
+      currentGenre.songs.length;
 
     play(currentGenre, nextIndex);
   }
@@ -265,8 +348,6 @@ const Player = (() => {
       ? audio.currentTime
       : elapsed;
 
-    // Si llevamos más de 3 segundos,
-    // reinicia la canción actual.
     if (currentTime > 3) {
       if (isRealAudio()) {
         audio.currentTime = 0;
@@ -302,7 +383,8 @@ const Player = (() => {
     );
 
     if (isRealAudio()) {
-      const duration = audio.duration || song.duration;
+      const duration =
+        audio.duration || song.duration;
 
       if (Number.isFinite(duration)) {
         audio.currentTime = pct * duration;
@@ -312,17 +394,22 @@ const Player = (() => {
       return;
     }
 
-    // Canción simulada.
     elapsed = pct * song.duration;
 
     render();
   }
 
   function setVolume(value) {
-    volume = Math.min(1, Math.max(0, value));
+    volume = Math.min(
+      1,
+      Math.max(0, value)
+    );
 
-    // Aplicar volumen al audio real.
-    audio.volume = volume;
+    // Si no estamos haciendo fade,
+    // aplicamos directamente el nuevo volumen.
+    if (!fadeHandle) {
+      audio.volume = volume;
+    }
   }
 
   // =========================
@@ -330,25 +417,21 @@ const Player = (() => {
   // =========================
 
   function bindAudioEvents() {
-    // Actualiza la barra mientras suena el MP3.
     audio.addEventListener("timeupdate", () => {
       if (!isRealAudio()) return;
 
       render();
     });
 
-    // Cuando el MP3 termina, pasa a la siguiente canción.
     audio.addEventListener("ended", () => {
       isPlaying = false;
       next();
     });
 
-    // Cuando el navegador conoce la duración real.
     audio.addEventListener("loadedmetadata", () => {
       render();
     });
 
-    // Si ocurre un error cargando el MP3.
     audio.addEventListener("error", () => {
       console.error(
         "No se pudo cargar el archivo de audio:",
@@ -356,6 +439,8 @@ const Player = (() => {
       );
 
       isPlaying = false;
+      audio.volume = volume;
+
       render();
     });
   }
@@ -365,38 +450,61 @@ const Player = (() => {
   // =========================
 
   function bindEvents() {
-    els.playBtn.addEventListener("click", togglePlay);
+    els.playBtn.addEventListener(
+      "click",
+      togglePlay
+    );
 
-    els.nextBtn.addEventListener("click", next);
+    els.nextBtn.addEventListener(
+      "click",
+      next
+    );
 
-    els.prevBtn.addEventListener("click", prev);
+    els.prevBtn.addEventListener(
+      "click",
+      prev
+    );
 
-    // Click en la barra de progreso.
-    els.progressTrack.addEventListener("click", (e) => {
-      seekTo(e.clientX);
-    });
-
-    // Arrastrar la barra de progreso.
-    let dragging = false;
-
-    els.progressHandle.addEventListener("mousedown", () => {
-      dragging = true;
-    });
-
-    window.addEventListener("mousemove", (e) => {
-      if (dragging) {
+    els.progressTrack.addEventListener(
+      "click",
+      (e) => {
         seekTo(e.clientX);
       }
-    });
+    );
 
-    window.addEventListener("mouseup", () => {
-      dragging = false;
-    });
+    let dragging = false;
 
-    // Volumen.
-    els.volumeSlider.addEventListener("input", (e) => {
-      setVolume(Number(e.target.value) / 100);
-    });
+    els.progressHandle.addEventListener(
+      "mousedown",
+      () => {
+        dragging = true;
+      }
+    );
+
+    window.addEventListener(
+      "mousemove",
+      (e) => {
+        if (dragging) {
+          seekTo(e.clientX);
+        }
+      }
+    );
+
+    window.addEventListener(
+      "mouseup",
+      () => {
+        dragging = false;
+      }
+    );
+
+    els.volumeSlider.addEventListener(
+      "input",
+      (e) => {
+        setVolume(
+          Number(e.target.value) / 100
+        );
+      }
+    );
   }
 
   function init() {
