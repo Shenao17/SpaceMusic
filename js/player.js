@@ -20,7 +20,6 @@ const Player = (() => {
   // CONFIGURACIÓN DEL FADE
   // =========================
 
-  // Duración del fade en milisegundos.
   const FADE_DURATION = 300;
 
   // Audio real del navegador.
@@ -50,7 +49,9 @@ const Player = (() => {
   }
 
   function formatTime(seconds) {
-    const safeSeconds = Number.isFinite(seconds) ? seconds : 0;
+    const safeSeconds = Number.isFinite(seconds)
+      ? seconds
+      : 0;
 
     const m = Math.floor(safeSeconds / 60);
     const s = Math.floor(safeSeconds % 60);
@@ -83,27 +84,39 @@ const Player = (() => {
     }
   }
 
-  function fadeVolume(targetVolume, duration = FADE_DURATION) {
+  function fadeVolume(
+    targetVolume,
+    duration = FADE_DURATION
+  ) {
     stopFade();
 
     const startVolume = audio.volume;
-    const difference = targetVolume - startVolume;
+    const difference =
+      targetVolume - startVolume;
+
     const startTime = performance.now();
 
     return new Promise((resolve) => {
       function animate(currentTime) {
-        const elapsedTime = currentTime - startTime;
-        const progress = Math.min(elapsedTime / duration, 1);
+        const elapsedTime =
+          currentTime - startTime;
+
+        const progress = Math.min(
+          elapsedTime / duration,
+          1
+        );
 
         // Suaviza el movimiento del volumen.
         const easedProgress =
           1 - Math.pow(1 - progress, 3);
 
         audio.volume =
-          startVolume + difference * easedProgress;
+          startVolume +
+          difference * easedProgress;
 
         if (progress < 1) {
-          fadeHandle = requestAnimationFrame(animate);
+          fadeHandle =
+            requestAnimationFrame(animate);
         } else {
           audio.volume = targetVolume;
           fadeHandle = null;
@@ -111,9 +124,14 @@ const Player = (() => {
         }
       }
 
-      fadeHandle = requestAnimationFrame(animate);
+      fadeHandle =
+        requestAnimationFrame(animate);
     });
   }
+
+  // =========================
+  // RENDER
+  // =========================
 
   function render() {
     const song = currentSong();
@@ -138,11 +156,24 @@ const Player = (() => {
       formatTime(duration);
 
     const pct = duration > 0
-      ? Math.min(100, (currentTime / duration) * 100)
+      ? Math.min(
+          100,
+          (currentTime / duration) * 100
+        )
       : 0;
 
-    els.progressFill.style.width = `${pct}%`;
-    els.progressHandle.style.left = `${pct}%`;
+    // Movimiento visual suave.
+    els.progressFill.style.transition =
+      "width 120ms linear";
+
+    els.progressHandle.style.transition =
+      "left 120ms linear, transform 120ms ease";
+
+    els.progressFill.style.width =
+      `${pct}%`;
+
+    els.progressHandle.style.left =
+      `${pct}%`;
 
     els.playBtn.classList.toggle(
       "is-playing",
@@ -151,25 +182,31 @@ const Player = (() => {
 
     els.playBtn.setAttribute(
       "aria-label",
-      isPlaying ? "Pausar" : "Reproducir"
+      isPlaying
+        ? "Pausar"
+        : "Reproducir"
     );
 
     els.cover.className =
       `player-cover ${currentGenre.planetClass}`;
 
-    document.querySelectorAll(".song-row").forEach((row) => {
-      const rowIndex = Number(row.dataset.index);
+    document
+      .querySelectorAll(".song-row")
+      .forEach((row) => {
+        const rowIndex =
+          Number(row.dataset.index);
 
-      row.classList.toggle(
-        "is-active",
-        rowIndex === currentIndex
-      );
+        row.classList.toggle(
+          "is-active",
+          rowIndex === currentIndex
+        );
 
-      row.classList.toggle(
-        "is-playing",
-        rowIndex === currentIndex && isPlaying
-      );
-    });
+        row.classList.toggle(
+          "is-playing",
+          rowIndex === currentIndex &&
+          isPlaying
+        );
+      });
   }
 
   // =========================
@@ -194,7 +231,8 @@ const Player = (() => {
   function startTicking() {
     stopTicking();
 
-    tickHandle = setInterval(tick, 1000);
+    tickHandle =
+      setInterval(tick, 1000);
   }
 
   function stopTicking() {
@@ -253,7 +291,8 @@ const Player = (() => {
 
     isPlaying = false;
 
-    // Restauramos el volumen para la próxima reproducción.
+    // Restauramos el volumen
+    // para la próxima reproducción.
     audio.volume = volume;
 
     render();
@@ -360,7 +399,8 @@ const Player = (() => {
     }
 
     const prevIndex =
-      (currentIndex - 1 + currentGenre.songs.length) %
+      (currentIndex - 1 +
+        currentGenre.songs.length) %
       currentGenre.songs.length;
 
     play(currentGenre, prevIndex);
@@ -378,23 +418,27 @@ const Player = (() => {
       1,
       Math.max(
         0,
-        (clientX - rect.left) / rect.width
+        (clientX - rect.left) /
+          rect.width
       )
     );
 
     if (isRealAudio()) {
       const duration =
-        audio.duration || song.duration;
+        audio.duration ||
+        song.duration;
 
       if (Number.isFinite(duration)) {
-        audio.currentTime = pct * duration;
+        audio.currentTime =
+          pct * duration;
       }
 
       render();
       return;
     }
 
-    elapsed = pct * song.duration;
+    elapsed =
+      pct * song.duration;
 
     render();
   }
@@ -405,6 +449,10 @@ const Player = (() => {
       Math.max(0, value)
     );
 
+    // Actualizamos el slider visual.
+    els.volumeSlider.value =
+      Math.round(volume * 100);
+
     // Si no estamos haciendo fade,
     // aplicamos directamente el nuevo volumen.
     if (!fadeHandle) {
@@ -413,36 +461,111 @@ const Player = (() => {
   }
 
   // =========================
+  // CONTROLES DE TECLADO
+  // =========================
+
+  function changeVolume(amount) {
+    const newVolume = Math.min(
+      1,
+      Math.max(
+        0,
+        volume + amount
+      )
+    );
+
+    setVolume(newVolume);
+  }
+
+  function bindKeyboardEvents() {
+    window.addEventListener(
+      "keydown",
+      (e) => {
+        const tag =
+          document.activeElement?.tagName;
+
+        // No interferir con inputs,
+        // textareas o selects.
+        if (
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          tag === "SELECT"
+        ) {
+          return;
+        }
+
+        switch (e.code) {
+          case "Space":
+            e.preventDefault();
+            togglePlay();
+            break;
+
+          case "ArrowLeft":
+            e.preventDefault();
+            prev();
+            break;
+
+          case "ArrowRight":
+            e.preventDefault();
+            next();
+            break;
+
+          case "ArrowUp":
+            e.preventDefault();
+            changeVolume(0.05);
+            break;
+
+          case "ArrowDown":
+            e.preventDefault();
+            changeVolume(-0.05);
+            break;
+        }
+      }
+    );
+  }
+
+  // =========================
   // EVENTOS DEL AUDIO
   // =========================
 
   function bindAudioEvents() {
-    audio.addEventListener("timeupdate", () => {
-      if (!isRealAudio()) return;
+    audio.addEventListener(
+      "timeupdate",
+      () => {
+        if (!isRealAudio()) return;
 
-      render();
-    });
+        render();
+      }
+    );
 
-    audio.addEventListener("ended", () => {
-      isPlaying = false;
-      next();
-    });
+    audio.addEventListener(
+      "ended",
+      () => {
+        isPlaying = false;
+        next();
+      }
+    );
 
-    audio.addEventListener("loadedmetadata", () => {
-      render();
-    });
+    audio.addEventListener(
+      "loadedmetadata",
+      () => {
+        render();
+      }
+    );
 
-    audio.addEventListener("error", () => {
-      console.error(
-        "No se pudo cargar el archivo de audio:",
-        audio.src
-      );
+    audio.addEventListener(
+      "error",
+      () => {
+        console.error(
+          "No se pudo cargar el archivo de audio:",
+          audio.src
+        );
 
-      isPlaying = false;
-      audio.volume = volume;
+        isPlaying = false;
+        audio.volume = volume;
 
-      render();
-    });
+        render();
+      }
+    );
   }
 
   // =========================
@@ -507,10 +630,15 @@ const Player = (() => {
     );
   }
 
+  // =========================
+  // INICIALIZACIÓN
+  // =========================
+
   function init() {
     cacheEls();
     bindEvents();
     bindAudioEvents();
+    bindKeyboardEvents();
   }
 
   return {
