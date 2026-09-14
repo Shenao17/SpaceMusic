@@ -147,33 +147,51 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  justify-content: center;
+  gap: 34px;
+  width: 100%;
+  height: 100%;
   text-align: center;
   transition: transform 1.4s var(--ease-in-out), opacity 1.1s ease;
 }
 
+/* 🔧 PERSONALIZAR: texto "SpaceMusic" + tagline, ahora discreto y fijo
+   abajo de la pantalla, estilo copyright/firma (no forma parte del
+   grupo centrado del cohete+botón). */
+.landing__footer {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(18px, 4vh, 34px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.55;
+}
+
 .landing__brand {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
   margin: 0;
-  background: linear-gradient(120deg, var(--c-lilac) 20%, var(--c-cream) 55%, var(--c-yellow) 85%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--c-grey-purple);
 }
 
 .landing__tagline {
   margin: 0;
   color: var(--c-grey-purple);
-  font-size: 1.05rem;
+  font-size: 0.68rem;
   letter-spacing: 0.02em;
 }
 
+/* 🔧 PERSONALIZAR: tamaño del cohete en la pantalla principal.
+   Sube/baja los valores de clamp(mínimo, preferido, máximo) para
+   ajustar qué tan grande se ve en pantallas chicas/medianas/grandes. */
 .rocket-wrap {
   position: relative;
-  width: clamp(160px, 22vw, 220px);
+  width: clamp(210px, min(30vw, 34vh), 320px);
 }
 
 .rocket {
@@ -344,7 +362,7 @@ button {
 }
 
 .solar__core-rocket {
-  width: 40px;
+  width: 90px;
   height: auto;
   animation: core-float 5s ease-in-out infinite;
   filter: drop-shadow(0 4px 12px rgba(71, 52, 127, 0.5));
@@ -957,8 +975,9 @@ button {
 }
 
 @media (max-width: 480px) {
+  /* 🔧 PERSONALIZAR: tamaño del cohete en pantallas muy chicas (celular) */
   .rocket-wrap {
-    width: clamp(130px, 38vw, 170px);
+    width: clamp(190px, 60vw, 300px);
   }
 
   .genre-header {

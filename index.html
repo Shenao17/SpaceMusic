@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SpaceMusic — Tu música está en otro planeta</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="shortcut icon" href="assets/images/icon.png" type="image/x-icon">
 </head>
 <body>
   <div id="app">
@@ -13,9 +14,7 @@
     <!-- ============ VISTA 1: LANDING ============ -->
     <section id="view-landing" class="view">
       <div class="landing">
-        <h1 class="landing__brand">SpaceMusic</h1>
-        <p class="landing__tagline">Tu música está en otro planeta.</p>
-
+        <!-- 🔧 PERSONALIZAR: tamaño del cohete -> ver ".rocket-wrap" en css/style.css -->
         <div class="rocket-wrap">
           <div class="rocket">
             <img src="assets/images/rocket.png" alt="" class="rocket__img" />
@@ -24,6 +23,13 @@
         </div>
 
         <button id="launch-btn" class="launch-btn" type="button">Despegar</button>
+
+        <!-- 🔧 PERSONALIZAR: texto de marca, ahora chico y abajo tipo copyright
+             -> ver ".landing__footer" en css/style.css -->
+        <div class="landing__footer">
+          <span class="landing__brand">SpaceMusic</span>
+          <span class="landing__tagline">Tu música está en otro planeta.</span>
+        </div>
       </div>
     </section>
 

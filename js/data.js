@@ -25,8 +25,8 @@ const GENRES = [
     planetClass: "planet--rock",
     tagline: "Roca, fuego y guitarras a la deriva.",
     songs: [
-      { title: "Mr. Brightside", artist: "The Killers", duration: 222 },
-      { title: "Seven Nation Army", artist: "The White Stripes", duration: 231 },
+      { title: "Smells Like Teen Spirit", artist: "Nirvana", duration: 278, audioSrc: "assets/audio/Nirvana - Smells Like Teen Spirit.mp3" },
+      { title: "Don't Cry", artist: "Guns N' Roses", duration: 284, audioSrc: "assets/audio/Don't Cry - Guns N' Roses.mp3" },
       { title: "Do I Wanna Know?", artist: "Arctic Monkeys", duration: 272, audioSrc: "assets/audio/Arctic Monkeys - Do I Wanna Know.mp3"  },
       { title: "Somebody Told Me", artist: "The Killers", duration: 197 },
       { title: "Take Me Out", artist: "Franz Ferdinand", duration: 237 },
@@ -51,7 +51,7 @@ const GENRES = [
     planetClass: "planet--electronica",
     tagline: "Señales sintéticas desde el borde del sistema.",
     songs: [
-      { title: "Strobe", artist: "deadmau5", duration: 634 },
+      { title: "2003", artist: "TNT", duration: 192, audioSrc: "assets/audio/TNT - 2003.mp3" },
       { title: "Levels", artist: "Avicii", duration: 203 },
       { title: "Opus", artist: "Eric Prydz", duration: 543 },
       { title: "Reload", artist: "Sebastian Ingrosso", duration: 384 },
