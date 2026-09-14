@@ -1,19 +1,24 @@
 /**
  * player.js
  * Controla el reproductor fijo inferior.
- * No hay archivos de audio reales disponibles, así que la reproducción
- * se simula con un intervalo que avanza el tiempo actual de la canción,
- * pero toda la interfaz (play/pause, siguiente, anterior, progreso,
- * volumen) es completamente funcional.
+ *
+ * Soporta dos tipos de canciones:
+ * 1. Canciones con audioSrc → reproducción real mediante <audio>.
+ * 2. Canciones sin audioSrc → reproducción simulada mediante contador.
  */
 
 const Player = (() => {
   let currentGenre = null;
   let currentIndex = -1;
+
   let isPlaying = false;
   let elapsed = 0;
   let tickHandle = null;
   let volume = 0.7;
+
+  // Audio real del navegador.
+  const audio = new Audio();
+  audio.volume = volume;
 
   let els = {};
 
@@ -36,56 +41,102 @@ const Player = (() => {
   }
 
   function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
+    const safeSeconds = Number.isFinite(seconds) ? seconds : 0;
+
+    const m = Math.floor(safeSeconds / 60);
+    const s = Math.floor(safeSeconds % 60);
+
     return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
   function currentSong() {
-    if (!currentGenre || currentIndex < 0) return null;
+    if (!currentGenre || currentIndex < 0) {
+      return null;
+    }
+
     return currentGenre.songs[currentIndex];
+  }
+
+  function isRealAudio() {
+    const song = currentSong();
+
+    return !!(song && song.audioSrc);
   }
 
   function render() {
     const song = currentSong();
+
     if (!song) return;
 
     els.title.textContent = song.title;
     els.artist.textContent = song.artist;
-    els.timeCurrent.textContent = formatTime(elapsed);
-    els.timeDuration.textContent = formatTime(song.duration);
 
-    const pct = Math.min(100, (elapsed / song.duration) * 100);
+    // Si estamos usando audio real, usamos su tiempo.
+    // Si no, usamos el contador simulado.
+    const currentTime = isRealAudio() ? audio.currentTime : elapsed;
+
+    const duration = isRealAudio()
+      ? audio.duration || song.duration
+      : song.duration;
+
+    els.timeCurrent.textContent = formatTime(currentTime);
+    els.timeDuration.textContent = formatTime(duration);
+
+    const pct = duration > 0
+      ? Math.min(100, (currentTime / duration) * 100)
+      : 0;
+
     els.progressFill.style.width = `${pct}%`;
     els.progressHandle.style.left = `${pct}%`;
 
     els.playBtn.classList.toggle("is-playing", isPlaying);
-    els.playBtn.setAttribute("aria-label", isPlaying ? "Pausar" : "Reproducir");
 
-    // Actualiza la portada con un degradado propio del género activo.
+    els.playBtn.setAttribute(
+      "aria-label",
+      isPlaying ? "Pausar" : "Reproducir"
+    );
+
+    // Portada según el género.
     els.cover.className = `player-cover ${currentGenre.planetClass}`;
 
-    // Marca la fila activa en la lista de canciones, si está visible.
+    // Marca la canción activa.
     document.querySelectorAll(".song-row").forEach((row) => {
       const rowIndex = Number(row.dataset.index);
-      row.classList.toggle("is-active", rowIndex === currentIndex);
-      row.classList.toggle("is-playing", rowIndex === currentIndex && isPlaying);
+
+      row.classList.toggle(
+        "is-active",
+        rowIndex === currentIndex
+      );
+
+      row.classList.toggle(
+        "is-playing",
+        rowIndex === currentIndex && isPlaying
+      );
     });
   }
 
+  // =========================
+  // REPRODUCCIÓN SIMULADA
+  // =========================
+
   function tick() {
     const song = currentSong();
+
     if (!song) return;
+
     elapsed += 1;
+
     if (elapsed >= song.duration) {
       next();
       return;
     }
+
     render();
   }
 
   function startTicking() {
     stopTicking();
+
     tickHandle = setInterval(tick, 1000);
   }
 
@@ -96,76 +147,253 @@ const Player = (() => {
     }
   }
 
+  // =========================
+  // AUDIO REAL
+  // =========================
+
+  function loadRealAudio(song) {
+    audio.pause();
+
+    audio.currentTime = 0;
+    audio.src = song.audioSrc;
+
+    audio.load();
+  }
+
+  function clearRealAudio() {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+  }
+
+  async function playRealAudio() {
+    try {
+      await audio.play();
+      isPlaying = true;
+      render();
+    } catch (error) {
+      console.error("No se pudo reproducir el audio:", error);
+
+      isPlaying = false;
+      render();
+    }
+  }
+
+  function pauseRealAudio() {
+    audio.pause();
+    isPlaying = false;
+    render();
+  }
+
+  // =========================
+  // REPRODUCTOR
+  // =========================
+
   function show() {
     els.bar.classList.add("is-visible");
   }
 
   function play(genre, index) {
+    // Detener cualquier reproducción anterior.
+    stopTicking();
+    audio.pause();
+
     currentGenre = genre;
     currentIndex = index;
     elapsed = 0;
     isPlaying = true;
+
+    const song = currentSong();
+
+    if (!song) return;
+
     show();
+
+    // Canción con MP3 real.
+    if (song.audioSrc) {
+      loadRealAudio(song);
+      render();
+      playRealAudio();
+      return;
+    }
+
+    // Canción sin MP3: simulación.
     startTicking();
     render();
   }
 
   function togglePlay() {
-    if (!currentSong()) return;
+    const song = currentSong();
+
+    if (!song) return;
+
+    if (isRealAudio()) {
+      if (isPlaying) {
+        pauseRealAudio();
+      } else {
+        playRealAudio();
+      }
+
+      return;
+    }
+
+    // Canción simulada.
     isPlaying = !isPlaying;
+
     if (isPlaying) {
       startTicking();
     } else {
       stopTicking();
     }
+
     render();
   }
 
   function next() {
     if (!currentGenre) return;
-    const nextIndex = (currentIndex + 1) % currentGenre.songs.length;
+
+    const nextIndex =
+      (currentIndex + 1) % currentGenre.songs.length;
+
     play(currentGenre, nextIndex);
   }
 
   function prev() {
     if (!currentGenre) return;
-    // Si llevamos más de 3s de la canción, "anterior" reinicia la canción actual.
-    if (elapsed > 3) {
-      elapsed = 0;
+
+    const currentTime = isRealAudio()
+      ? audio.currentTime
+      : elapsed;
+
+    // Si llevamos más de 3 segundos,
+    // reinicia la canción actual.
+    if (currentTime > 3) {
+      if (isRealAudio()) {
+        audio.currentTime = 0;
+      } else {
+        elapsed = 0;
+      }
+
       render();
       return;
     }
-    const prevIndex = (currentIndex - 1 + currentGenre.songs.length) % currentGenre.songs.length;
+
+    const prevIndex =
+      (currentIndex - 1 + currentGenre.songs.length) %
+      currentGenre.songs.length;
+
     play(currentGenre, prevIndex);
   }
 
   function seekTo(clientX) {
     const song = currentSong();
+
     if (!song) return;
-    const rect = els.progressTrack.getBoundingClientRect();
-    const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+
+    const rect =
+      els.progressTrack.getBoundingClientRect();
+
+    const pct = Math.min(
+      1,
+      Math.max(
+        0,
+        (clientX - rect.left) / rect.width
+      )
+    );
+
+    if (isRealAudio()) {
+      const duration = audio.duration || song.duration;
+
+      if (Number.isFinite(duration)) {
+        audio.currentTime = pct * duration;
+      }
+
+      render();
+      return;
+    }
+
+    // Canción simulada.
     elapsed = pct * song.duration;
+
     render();
   }
 
   function setVolume(value) {
-    volume = value;
+    volume = Math.min(1, Math.max(0, value));
+
+    // Aplicar volumen al audio real.
+    audio.volume = volume;
   }
+
+  // =========================
+  // EVENTOS DEL AUDIO
+  // =========================
+
+  function bindAudioEvents() {
+    // Actualiza la barra mientras suena el MP3.
+    audio.addEventListener("timeupdate", () => {
+      if (!isRealAudio()) return;
+
+      render();
+    });
+
+    // Cuando el MP3 termina, pasa a la siguiente canción.
+    audio.addEventListener("ended", () => {
+      isPlaying = false;
+      next();
+    });
+
+    // Cuando el navegador conoce la duración real.
+    audio.addEventListener("loadedmetadata", () => {
+      render();
+    });
+
+    // Si ocurre un error cargando el MP3.
+    audio.addEventListener("error", () => {
+      console.error(
+        "No se pudo cargar el archivo de audio:",
+        audio.src
+      );
+
+      isPlaying = false;
+      render();
+    });
+  }
+
+  // =========================
+  // EVENTOS DE LA INTERFAZ
+  // =========================
 
   function bindEvents() {
     els.playBtn.addEventListener("click", togglePlay);
+
     els.nextBtn.addEventListener("click", next);
+
     els.prevBtn.addEventListener("click", prev);
 
-    els.progressTrack.addEventListener("click", (e) => seekTo(e.clientX));
-
-    let dragging = false;
-    els.progressHandle.addEventListener("mousedown", () => (dragging = true));
-    window.addEventListener("mousemove", (e) => {
-      if (dragging) seekTo(e.clientX);
+    // Click en la barra de progreso.
+    els.progressTrack.addEventListener("click", (e) => {
+      seekTo(e.clientX);
     });
-    window.addEventListener("mouseup", () => (dragging = false));
 
+    // Arrastrar la barra de progreso.
+    let dragging = false;
+
+    els.progressHandle.addEventListener("mousedown", () => {
+      dragging = true;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (dragging) {
+        seekTo(e.clientX);
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      dragging = false;
+    });
+
+    // Volumen.
     els.volumeSlider.addEventListener("input", (e) => {
       setVolume(Number(e.target.value) / 100);
     });
@@ -174,7 +402,15 @@ const Player = (() => {
   function init() {
     cacheEls();
     bindEvents();
+    bindAudioEvents();
   }
 
-  return { init, play, togglePlay, next, prev, isVisible: () => !!currentGenre };
+  return {
+    init,
+    play,
+    togglePlay,
+    next,
+    prev,
+    isVisible: () => !!currentGenre,
+  };
 })();

@@ -27,7 +27,7 @@ const GENRES = [
     songs: [
       { title: "Mr. Brightside", artist: "The Killers", duration: 222 },
       { title: "Seven Nation Army", artist: "The White Stripes", duration: 231 },
-      { title: "Do I Wanna Know?", artist: "Arctic Monkeys", duration: 272 },
+      { title: "Do I Wanna Know?", artist: "Arctic Monkeys", duration: 272, audioSrc: "assets/audio/Arctic Monkeys - Do I Wanna Know.mp3"  },
       { title: "Somebody Told Me", artist: "The Killers", duration: 197 },
       { title: "Take Me Out", artist: "Franz Ferdinand", duration: 237 },
     ],
