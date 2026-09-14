@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpaceMusic — Tu música está en otro planeta</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="starfield" aria-hidden="true"></div>
+
+    <!-- ============ VISTA 1: LANDING ============ -->
+    <section id="view-landing" class="view">
+      <div class="landing">
+        <h1 class="landing__brand">SpaceMusic</h1>
+        <p class="landing__tagline">Tu música está en otro planeta.</p>
+
+        <div class="rocket-wrap">
+          <div class="rocket">
+            <div class="rocket__nose"></div>
+            <div class="rocket__body">
+              <div class="rocket__window"></div>
+            </div>
+            <div class="rocket__fin rocket__fin--left"></div>
+            <div class="rocket__fin rocket__fin--right"></div>
+            <div class="rocket__flame"></div>
+          </div>
+        </div>
+
+        <button id="launch-btn" class="launch-btn" type="button">Despegar</button>
+      </div>
+    </section>
+
+    <!-- ============ VISTA 2: SISTEMA SOLAR ============ -->
+    <section id="view-solar-system" class="view">
+      <div class="solar">
+        <div class="solar__core">
+          <span class="solar__core-rocket" aria-hidden="true">🚀</span>
+          <span class="solar__core-title">SPACE<br />MUSIC</span>
+        </div>
+        <div id="planet-field" class="planet-field"></div>
+      </div>
+    </section>
+
+    <!-- ============ VISTA 3: GÉNERO ============ -->
+    <section id="view-genre" class="view">
+      <button id="back-to-system" class="genre-back" type="button">
+        <span aria-hidden="true">←</span> Volver al sistema
+      </button>
+
+      <div class="genre-header">
+        <div class="genre-planet-icon"></div>
+        <div>
+          <span class="genre-label">Planeta musical</span>
+          <h2 class="genre-name"></h2>
+        </div>
+      </div>
+
+      <p class="genre-tagline"></p>
+
+      <h3 class="section-title">Destacados</h3>
+      <div class="song-list"></div>
+    </section>
+
+    <!-- ============ REPRODUCTOR FIJO ============ -->
+    <div id="player" class="player">
+      <div id="player-cover" class="player-cover"></div>
+
+      <div class="player-meta">
+        <span id="player-title" class="title">—</span>
+        <span id="player-artist" class="artist">—</span>
+      </div>
+
+      <div class="player-controls">
+        <button id="player-prev" type="button" aria-label="Anterior">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3h1.5v10H4V3zM13.5 2.8v10.4L6.5 8l7-5.2z"/></svg>
+        </button>
+        <button id="player-play" class="player-play" type="button" aria-label="Reproducir">
+          <svg class="icon-play" width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l10-5.5-10-5.5z"/></svg>
+          <svg class="icon-pause" width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5h3v11H4v-11zm5 0h3v11H9v-11z"/></svg>
+        </button>
+        <button id="player-next" type="button" aria-label="Siguiente">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11 3h1.5v10H11V3zM2.5 2.8v10.4L9.5 8 2.5 2.8z"/></svg>
+        </button>
+      </div>
+
+      <div class="player-progress">
+        <time id="player-time-current">0:00</time>
+        <div id="player-progress-track" class="progress-track">
+          <div id="player-progress-fill" class="progress-fill"></div>
+          <div id="player-progress-handle" class="progress-handle"></div>
+        </div>
+        <time id="player-time-duration">0:00</time>
+      </div>
+
+      <div class="player-volume">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 6v4h3l4 3V3L5 6H2z"/></svg>
+        <input id="player-volume" type="range" min="0" max="100" value="70" aria-label="Volumen" />
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
