@@ -12,7 +12,7 @@ const GENRES = [
     planetClass: "planet--pop",
     tagline: "Órbitas brillantes, melodías que no se olvidan.",
     songs: [
-      { title: "Blinding Lights", artist: "The Weeknd", duration: 200 },
+      { title: "Blinding Lights", artist: "The Weeknd", duration: 203, audioSrc: "assets/audio/TheWeekndBlindingLights.mp3" },
       { title: "As It Was", artist: "Harry Styles", duration: 167 },
       { title: "Levitating", artist: "Dua Lipa", duration: 203 },
       { title: "Bad Guy", artist: "Billie Eilish", duration: 194 },
