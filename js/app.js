@@ -85,6 +85,64 @@ function cacheViews() {
     layer.appendChild(frag);
   }
 
+    // =========================================================
+  // ESTRELLAS FUGACES
+  // =========================================================
+
+  function createShootingStar() {
+    const layer = document.getElementById("starfield");
+
+    if (!layer) return;
+
+    // No crear estrellas fugaces si el usuario
+    // prefiere reducir las animaciones.
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    const shootingStar = document.createElement("span");
+
+    shootingStar.className = "shooting-star";
+
+    // Posición inicial aleatoria.
+    // Entramos desde una zona superior/lateral
+    // para que la trayectoria atraviese el cielo.
+    shootingStar.style.left = `${Math.random() * 85 + 5}%`;
+    shootingStar.style.top = `${Math.random() * 45 + 5}%`;
+
+    // Variamos ligeramente tamaño y velocidad.
+    const size = Math.random() * 1.2 + 1;
+    const duration = Math.random() * 0.45 + 0.75;
+
+    shootingStar.style.width = `${size}px`;
+    shootingStar.style.height = `${size}px`;
+    shootingStar.style.animationDuration = `${duration}s`;
+
+    layer.appendChild(shootingStar);
+
+    // Limpiar el elemento después de la animación.
+    window.setTimeout(() => {
+      shootingStar.remove();
+    }, duration * 1000 + 100);
+  }
+
+  function startShootingStars() {
+    const scheduleNext = () => {
+      const delay = Math.random() * 7000 + 8000;
+
+      window.setTimeout(() => {
+        createShootingStar();
+        scheduleNext();
+      }, delay);
+    };
+
+    scheduleNext();
+  }
+
+
   // =========================================================
   // LANZAMIENTO
   // =========================================================
@@ -403,6 +461,7 @@ function cacheViews() {
 
     buildStarfield();
     bindLaunch();
+    startShootingStars();
     buildSolarSystem();
     bindBackButton();
 

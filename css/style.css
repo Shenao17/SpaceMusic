@@ -110,6 +110,108 @@ button {
   }
 }
 
+/* ---------------------------------------------------------
+   Estrellas fugaces
+   --------------------------------------------------------- */
+
+.shooting-star {
+
+  position: absolute;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background: var(--c-lilac);
+
+  box-shadow:
+    0 0 5px rgba(252, 244, 254, 0.9),
+    0 0 12px rgba(247, 213, 98, 0.45);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  z-index: 1;
+
+  animation-name: shooting-star;
+
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  animation-fill-mode: forwards;
+}
+
+.shooting-star::after {
+  content: "";
+
+  position: absolute;
+
+  width: 80px;
+  height: 2px;
+
+  left: -80px;
+  top: -1px;
+
+  transform: rotate(88deg);
+
+  transform-origin: right center;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(252, 244, 254, 0.08),
+    rgba(252, 244, 254, 0.7)
+  );
+
+  filter: blur(0.6px);
+}
+
+@keyframes shooting-star {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.7);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  65% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-180px, 180px) scale(1);
+  }
+}
+
+@keyframes shooting-star {
+  0% {
+    opacity: 0;
+    transform:
+      translate(0, 0)
+      rotate(45deg)
+      scale(0.7);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  65% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-180px, 180px)
+      rotate(45deg)
+      scale(1);
+  }
+}
+
 .view {
   position: absolute;
   inset: 0;
@@ -117,6 +219,9 @@ button {
   opacity: 0;
   z-index: 1;
 }
+
+
+
 
 .view--active {
   display: block;
