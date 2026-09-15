@@ -1208,7 +1208,56 @@ button {
   position: relative;
   width: 100%;
   height: 100%;
+  isolation: isolate;
 }
+
+/* ---------------------------------------------------------
+   Campo espacial
+   --------------------------------------------------------- */
+
+.planet-field {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Órbitas sutiles */
+.planet-field::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 76vw;
+  height: 46vh;
+  min-width: 720px;
+  min-height: 340px;
+  transform: translate(-50%, -50%) rotate(-7deg);
+  border: 1px solid rgba(131, 125, 154, 0.10);
+  border-radius: 50%;
+  box-shadow:
+    0 0 35px rgba(71, 52, 127, 0.05),
+    inset 0 0 35px rgba(71, 52, 127, 0.03);
+}
+
+/* Segunda órbita */
+.planet-field::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58vw;
+  height: 68vh;
+  min-width: 560px;
+  min-height: 480px;
+  transform: translate(-50%, -50%) rotate(18deg);
+  border: 1px solid rgba(252, 244, 254, 0.055);
+  border-radius: 50%;
+}
+
+/* ---------------------------------------------------------
+   Cohete central
+   --------------------------------------------------------- */
 
 .solar__core {
   position: absolute;
@@ -1219,9 +1268,33 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  z-index: 2;
+  z-index: 4;
   opacity: 0;
   transition: opacity 1s ease 0.3s;
+}
+
+/* Halo energético del núcleo.
+   No es un sol: es una pequeña zona de energía alrededor
+   del cohete central. */
+.solar__core::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 180px;
+  height: 180px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(71, 52, 127, 0.16) 0%,
+    rgba(71, 52, 127, 0.07) 35%,
+    rgba(71, 52, 127, 0.02) 58%,
+    transparent 72%
+  );
+  filter: blur(3px);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .solar__core-rocket {
@@ -1236,6 +1309,7 @@ button {
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-6px);
   }
@@ -1254,10 +1328,9 @@ button {
   opacity: 1;
 }
 
-.planet-field {
-  position: absolute;
-  inset: 0;
-}
+/* ---------------------------------------------------------
+   Planetas
+   --------------------------------------------------------- */
 
 .planet {
   position: absolute;
@@ -1267,8 +1340,11 @@ button {
   gap: 10px;
   transform: translate(-50%, -50%) scale(0.7);
   opacity: 0;
-  transition: transform 0.6s var(--ease-out), opacity 0.6s ease;
+  transition:
+    transform 0.6s var(--ease-out),
+    opacity 0.6s ease;
   z-index: 3;
+  pointer-events: auto;
 }
 
 #view-solar-system.is-revealed .planet {
@@ -1276,51 +1352,96 @@ button {
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* Posiciones orgánicas en escritorio */
+/* ---------------------------------------------------------
+   Posiciones
+   --------------------------------------------------------- */
+
+/* Arriba izquierda */
 .planet--slot-0 {
   left: 22%;
-  top: 24%;
+  top: 23%;
   transition-delay: 0.05s;
 }
+
+/* Arriba derecha */
 .planet--slot-1 {
   left: 78%;
-  top: 20%;
+  top: 21%;
   transition-delay: 0.14s;
 }
+
+/* Medio izquierda */
 .planet--slot-2 {
-  left: 12%;
-  top: 58%;
-  transition-delay: 0.1s;
+  left: 13%;
+  top: 56%;
+  transition-delay: 0.10s;
 }
+
+/* Medio derecha */
 .planet--slot-3 {
-  left: 88%;
-  top: 60%;
+  left: 87%;
+  top: 58%;
   transition-delay: 0.18s;
 }
+
+/* Abajo izquierda */
 .planet--slot-4 {
-  left: 32%;
-  top: 84%;
+  left: 30%;
+  top: 82%;
   transition-delay: 0.22s;
 }
+
+/* Abajo derecha */
 .planet--slot-5 {
-  left: 68%;
-  top: 88%;
+  left: 70%;
+  top: 85%;
   transition-delay: 0.26s;
 }
 
-.planet__body {
-  position: relative;
+/* ---------------------------------------------------------
+   Profundidad
+   --------------------------------------------------------- */
+
+/* Un poco más pequeños en el fondo */
+.planet--slot-0 .planet__body,
+.planet--slot-3 .planet__body {
+  width: 70px;
+  height: 70px;
+}
+
+/* Tamaño base */
+.planet--slot-1 .planet__body,
+.planet--slot-4 .planet__body {
   width: 76px;
   height: 76px;
+}
+
+/* Un poco más protagonistas */
+.planet--slot-2 .planet__body,
+.planet--slot-5 .planet__body {
+  width: 82px;
+  height: 82px;
+}
+
+/* ---------------------------------------------------------
+   Movimiento
+   --------------------------------------------------------- */
+
+.planet__body {
+  position: relative;
   border-radius: 50%;
   animation: planet-float 7s ease-in-out infinite;
-  transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), box-shadow 0.3s ease;
+  transition:
+    width 0.3s var(--ease-out),
+    height 0.3s var(--ease-out),
+    box-shadow 0.3s ease;
 }
 
 .planet--slot-1 .planet__body,
 .planet--slot-3 .planet__body {
   animation-duration: 8.5s;
 }
+
 .planet--slot-2 .planet__body,
 .planet--slot-4 .planet__body {
   animation-duration: 6.2s;
@@ -1331,10 +1452,15 @@ button {
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-9px);
   }
 }
+
+/* ---------------------------------------------------------
+   Sombra y anillos
+   --------------------------------------------------------- */
 
 .planet__shade {
   position: absolute;
@@ -1367,6 +1493,10 @@ button {
   height: 88px;
 }
 
+/* ---------------------------------------------------------
+   Etiquetas
+   --------------------------------------------------------- */
+
 .planet__label {
   display: flex;
   flex-direction: column;
@@ -1374,7 +1504,9 @@ button {
   gap: 2px;
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .planet:hover .planet__label,
@@ -1395,17 +1527,20 @@ button {
   color: var(--c-grey-purple);
 }
 
-/* Texturas por género.
-   Cada regla cubre dos casos: el planeta grande (.planet__body dentro
-   del sistema solar) y los "swatches" pequeños reutilizados en la vista
-   de género, la lista de canciones y el reproductor (que llevan la
-   clase del género directamente sobre sí mismos). */
+/* ---------------------------------------------------------
+   Texturas por género
+   --------------------------------------------------------- */
 
 .planet--pop .planet__body,
 .genre-planet-icon.planet--pop,
 .song-row__cover.planet--pop,
 .player-cover.planet--pop {
-  background: radial-gradient(circle at 32% 28%, #ffe3ef, var(--c-purple) 65%, var(--c-navy) 100%);
+  background: radial-gradient(
+    circle at 32% 28%,
+    #ffe3ef,
+    var(--c-purple) 65%,
+    var(--c-navy) 100%
+  );
   box-shadow: 0 0 26px rgba(71, 52, 127, 0.45);
 }
 
@@ -1413,7 +1548,11 @@ button {
 .genre-planet-icon.planet--rock,
 .song-row__cover.planet--rock,
 .player-cover.planet--rock {
-  background: radial-gradient(circle at 30% 30%, var(--c-grey-purple), var(--c-black) 75%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--c-grey-purple),
+    var(--c-black) 75%
+  );
   box-shadow: 0 0 22px rgba(131, 125, 154, 0.35);
 }
 
@@ -1421,7 +1560,11 @@ button {
 .genre-planet-icon.planet--hiphop,
 .song-row__cover.planet--hiphop,
 .player-cover.planet--hiphop {
-  background: radial-gradient(circle at 35% 25%, var(--c-navy), var(--c-black) 70%);
+  background: radial-gradient(
+    circle at 35% 25%,
+    var(--c-navy),
+    var(--c-black) 70%
+  );
   box-shadow: 0 0 24px rgba(39, 43, 86, 0.55);
 }
 
@@ -1429,7 +1572,11 @@ button {
 .genre-planet-icon.planet--electronica,
 .song-row__cover.planet--electronica,
 .player-cover.planet--electronica {
-  background: radial-gradient(circle at 30% 30%, var(--c-yellow), var(--c-purple) 70%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--c-yellow),
+    var(--c-purple) 70%
+  );
   box-shadow: 0 0 28px rgba(247, 213, 98, 0.3);
 }
 
@@ -1437,7 +1584,11 @@ button {
 .genre-planet-icon.planet--indie,
 .song-row__cover.planet--indie,
 .player-cover.planet--indie {
-  background: radial-gradient(circle at 30% 30%, var(--c-cream), var(--c-grey-purple) 70%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--c-cream),
+    var(--c-grey-purple) 70%
+  );
   box-shadow: 0 0 22px rgba(253, 230, 177, 0.25);
 }
 
@@ -1445,21 +1596,32 @@ button {
 .genre-planet-icon.planet--latino,
 .song-row__cover.planet--latino,
 .player-cover.planet--latino {
-  background: radial-gradient(circle at 30% 30%, #ffd9a0, var(--c-purple) 60%, var(--c-navy) 100%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    #ffd9a0,
+    var(--c-purple) 60%,
+    var(--c-navy) 100%
+  );
   box-shadow: 0 0 26px rgba(247, 213, 98, 0.25);
 }
 
-/* Salida hacia la vista de género */
+/* ---------------------------------------------------------
+   Salida hacia la vista de género
+   --------------------------------------------------------- */
 
 .planet.is-fading {
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.6);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
 }
 
 .planet.is-warping {
   z-index: 5;
-  transition: transform 0.85s var(--ease-in-out), opacity 0.85s ease;
+  transition:
+    transform 0.85s var(--ease-in-out),
+    opacity 0.85s ease;
   transform: translate(-50%, -50%) scale(9);
   opacity: 0;
 }
