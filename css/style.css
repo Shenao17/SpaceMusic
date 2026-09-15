@@ -152,22 +152,35 @@ button {
   width: 100%;
   height: 100%;
   text-align: center;
-  transition: transform 1.4s var(--ease-in-out), opacity 1.1s ease;
+
+  transform-origin: center center;
+
+  transition:
+    transform 1.4s var(--ease-in-out),
+    opacity 1.1s ease;
 }
 
-/* 🔧 PERSONALIZAR: texto "SpaceMusic" + tagline, ahora discreto y fijo
-   abajo de la pantalla, estilo copyright/firma (no forma parte del
-   grupo centrado del cohete+botón). */
+/* ---------------------------------------------------------
+   Firma
+   --------------------------------------------------------- */
+
 .landing__footer {
   position: absolute;
   left: 50%;
   bottom: clamp(18px, 4vh, 34px);
+
   transform: translateX(-50%);
+
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+
   opacity: 0.55;
+
+  transition:
+    opacity 0.6s ease,
+    transform 0.8s var(--ease-out);
 }
 
 .landing__brand {
@@ -186,19 +199,24 @@ button {
   letter-spacing: 0.02em;
 }
 
-/* 🔧 PERSONALIZAR: tamaño del cohete en la pantalla principal.
-   Sube/baja los valores de clamp(mínimo, preferido, máximo) para
-   ajustar qué tan grande se ve en pantallas chicas/medianas/grandes. */
+/* =========================================================
+   ROCKET — IDLE
+   ========================================================= */
+
 .rocket-wrap {
   position: relative;
   width: clamp(210px, min(30vw, 34vh), 320px);
+  transform-origin: center center;
 }
 
 .rocket {
   position: relative;
   width: 100%;
-  animation: rocket-idle 3.6s ease-in-out infinite;
   transform-origin: center bottom;
+
+  animation: rocket-idle 3.6s ease-in-out infinite;
+
+  will-change: transform;
 }
 
 @keyframes rocket-idle {
@@ -206,6 +224,7 @@ button {
   100% {
     transform: translateY(0) rotate(0deg);
   }
+
   50% {
     transform: translateY(-10px) rotate(-0.6deg);
   }
@@ -215,120 +234,964 @@ button {
   display: block;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 8px 22px rgba(71, 52, 127, 0.5));
+
+  filter:
+    drop-shadow(0 8px 22px rgba(71, 52, 127, 0.5));
+
+  transition:
+    filter 0.5s ease;
 }
+
+/* =========================================================
+   MOTOR / LLAMA
+   ========================================================= */
 
 .rocket__flame {
   position: absolute;
+
   left: 50%;
   bottom: -8%;
+
   width: 16%;
   aspect-ratio: 4 / 7;
+
   transform: translateX(-50%);
+
   border-radius: 0 0 50% 50%;
-  background: linear-gradient(180deg, var(--c-yellow), var(--c-purple));
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--c-yellow),
+      var(--c-purple)
+    );
+
   opacity: 0.9;
+
   filter: blur(1px);
-  animation: flame-flicker 0.5s ease-in-out infinite alternate;
+
+  animation:
+    flame-flicker 0.5s ease-in-out infinite alternate;
+
+  transform-origin: top center;
+
   z-index: -1;
+
+  will-change:
+    transform,
+    height,
+    opacity;
 }
 
 @keyframes flame-flicker {
   from {
-    transform: translateX(-50%) scaleY(0.85);
+    transform:
+      translateX(-50%)
+      scaleY(0.85);
     opacity: 0.75;
   }
+
   to {
-    transform: translateX(-50%) scaleY(1.15);
+    transform:
+      translateX(-50%)
+      scaleY(1.15);
     opacity: 1;
   }
 }
 
-.launch-btn {
-  position: relative;
-  padding: 16px 46px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: var(--c-black);
-  background: linear-gradient(120deg, var(--c-yellow), var(--c-cream));
-  border-radius: 999px;
-  box-shadow: 0 0 0 rgba(247, 213, 98, 0);
-  transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out), opacity 0.4s ease;
-}
+/* =========================================================
+   GLOW DEL MOTOR
+   ========================================================= */
 
-.launch-btn:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 12px 34px rgba(247, 213, 98, 0.28);
-}
+.rocket-wrap::before {
+  content: "";
 
-.launch-btn:active {
-  transform: translateY(-1px) scale(0.99);
-}
+  position: absolute;
 
-/* Secuencia de despegue */
+  left: 50%;
+  bottom: -10%;
 
-.landing.is-launching .launch-btn {
-  opacity: 0;
+  width: 45%;
+  height: 22%;
+
+  transform:
+    translateX(-50%)
+    scale(0.7);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(247, 213, 98, 0.5),
+      rgba(71, 52, 127, 0.2) 45%,
+      transparent 75%
+    );
+
+  filter: blur(14px);
+
+  opacity: 0.3;
+
+  z-index: -2;
+
   pointer-events: none;
-  transform: translateY(10px);
 }
 
-.landing.is-launching .landing__brand,
-.landing.is-launching .landing__tagline {
+/* =========================================================
+   HUMO DEL MOTOR
+   ========================================================= */
+
+.rocket-wrap::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: -17%;
+
+  width: 55%;
+  height: 20%;
+
+  transform:
+    translateX(-50%)
+    scale(0.4);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(252, 244, 254, 0.2),
+      rgba(131, 125, 154, 0.08) 45%,
+      transparent 75%
+    );
+
+  filter: blur(14px);
+
   opacity: 0;
-  transition: opacity 0.5s ease;
+
+  z-index: -3;
+
+  pointer-events: none;
 }
+
+/* =========================================================
+   PREPARACIÓN
+   ========================================================= */
 
 .landing.is-launching .rocket {
-  animation: none;
+  animation:
+    rocket-prepare 0.65s
+    cubic-bezier(0.4, 0, 0.2, 1)
+    forwards;
 }
 
-.landing.is-launching .rocket-wrap {
-  animation: rocket-launch 1.6s var(--ease-in-out) forwards 0.15s;
-}
-
-@keyframes rocket-launch {
+@keyframes rocket-prepare {
   0% {
-    transform: translateY(0) scale(1);
+    transform:
+      translateY(0)
+      rotate(0);
   }
-  30% {
-    transform: translateY(-40px) scale(1.02);
+
+  20% {
+    transform:
+      translateY(1px)
+      rotate(-0.8deg);
   }
+
+  40% {
+    transform:
+      translateY(-1px)
+      rotate(0.8deg);
+  }
+
+  60% {
+    transform:
+      translateY(1px)
+      rotate(-0.7deg);
+  }
+
+  80% {
+    transform:
+      translateY(-2px)
+      rotate(0.5deg);
+  }
+
   100% {
-    transform: translateY(-720px) scale(0.6);
+    transform:
+      translateY(0)
+      rotate(0);
   }
+}
+
+.landing.is-launching .rocket__img {
+  filter:
+    drop-shadow(0 8px 24px rgba(71, 52, 127, 0.75))
+    drop-shadow(0 0 20px rgba(247, 213, 98, 0.3));
 }
 
 .landing.is-launching .rocket__flame {
-  animation: flame-boost 1.6s var(--ease-in-out) forwards 0.15s;
+  animation:
+    flame-prepare 0.65s
+    ease-out
+    forwards;
 }
 
-@keyframes flame-boost {
+@keyframes flame-prepare {
   0% {
-    height: 34px;
-    opacity: 1;
+    transform:
+      translateX(-50%)
+      scaleY(1);
   }
-  40% {
-    height: 90px;
-    opacity: 1;
+
+  45% {
+    transform:
+      translateX(-50%)
+      scaleY(1.8);
   }
+
   100% {
-    height: 220px;
+    transform:
+      translateX(-50%)
+      scaleY(2.5);
+  }
+}
+
+.landing.is-launching .rocket-wrap::before {
+  animation:
+    engine-charge 0.65s ease-out forwards;
+}
+
+@keyframes engine-charge {
+  0% {
+    opacity: 0.3;
+    transform:
+      translateX(-50%)
+      scale(0.7);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      scale(1.5);
+  }
+}
+
+/* =========================================================
+   DESPEGUE REAL
+   ========================================================= */
+
+.landing.is-liftoff .rocket {
+  animation:
+    rocket-takeoff 1.1s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+@keyframes rocket-takeoff {
+  0% {
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+  12% {
+    transform:
+      translateY(8px)
+      scale(1.03);
+  }
+
+  30% {
+    transform:
+      translateY(-70px)
+      scale(1.02);
+  }
+
+  55% {
+    transform:
+      translateY(-260px)
+      scale(0.94);
+  }
+
+  75% {
+    transform:
+      translateY(-500px)
+      scale(0.78);
+  }
+
+  100% {
+    transform:
+      translateY(-850px)
+      scale(0.52);
+  }
+}
+
+.landing.is-liftoff .rocket__flame {
+  animation:
+    flame-takeoff 1.1s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+@keyframes flame-takeoff {
+  0% {
+    height: 35px;
+
+    transform:
+      translateX(-50%)
+      scaleY(2);
+  }
+
+  25% {
+    height: 65px;
+
+    transform:
+      translateX(-50%)
+      scaleY(2.5);
+  }
+
+  55% {
+    height: 130px;
+
+    transform:
+      translateX(-50%)
+      scaleY(3);
+  }
+
+  100% {
+    height: 260px;
+
+    transform:
+      translateX(-50%)
+      scaleY(3.5);
+
     opacity: 0;
   }
 }
 
-.landing.is-launching {
-  animation: stage-zoom 1.9s var(--ease-in-out) forwards;
+.landing.is-liftoff .rocket-wrap::before {
+  animation:
+    engine-blast 1.1s ease-out forwards;
 }
 
-@keyframes stage-zoom {
+@keyframes engine-blast {
+  0% {
+    opacity: 1;
+
+    transform:
+      translateX(-50%)
+      scale(1);
+  }
+
+  50% {
+    opacity: 0.9;
+
+    transform:
+      translateX(-50%)
+      scale(2.5);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translateX(-50%)
+      scale(4);
+  }
+}
+
+.landing.is-liftoff .rocket-wrap::after {
+  animation:
+    smoke-release 1.1s ease-out forwards;
+}
+
+@keyframes smoke-release {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateX(-50%)
+      scale(0.4);
+  }
+
+  20% {
+    opacity: 0.7;
+
+    transform:
+      translateX(-50%)
+      scale(1);
+  }
+
+  55% {
+    opacity: 0.5;
+
+    transform:
+      translateX(-50%)
+      scale(2);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translateX(-50%)
+      scale(4);
+  }
+}
+
+/* =========================================================
+   WARP FINAL
+   ========================================================= */
+
+.landing.is-warping {
+  animation:
+    launch-warp 0.6s
+    cubic-bezier(0.65, 0, 0.35, 1)
+    forwards;
+}
+
+@keyframes launch-warp {
   0% {
     transform: scale(1);
+    opacity: 1;
   }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+
   100% {
-    transform: scale(1.5);
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------
+   Botón DESPEGAR — Glass
+   --------------------------------------------------------- */
+
+.launch-btn {
+  position: relative;
+
+  min-width: 190px;
+
+  padding: 16px 46px;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  letter-spacing: 0.14em;
+
+  color: var(--c-black);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(253, 230, 177, 0.98),
+      rgba(247, 213, 98, 0.96)
+    );
+
+  border: 1px solid rgba(252, 244, 254, 0.55);
+
+  border-radius: 999px;
+
+  box-shadow:
+    0 8px 30px rgba(247, 213, 98, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out),
+    opacity 0.4s ease,
+    filter 0.4s ease;
+
+  isolation: isolate;
+}
+
+/* Reflejo que cruza el botón */
+
+.launch-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: -40%;
+  left: -80%;
+
+  width: 55%;
+  height: 180%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.42),
+      transparent
+    );
+
+  transform: rotate(18deg);
+
+  transition:
+    left 0.7s var(--ease-out);
+
+  pointer-events: none;
+}
+
+.launch-btn:hover::before {
+  left: 125%;
+}
+
+/* Glow exterior */
+
+.launch-btn::after {
+  content: "";
+
+  position: absolute;
+  inset: -2px;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(252, 244, 254, 0.28),
+      transparent 80%
+    );
+
+  opacity: 0;
+
+  filter: blur(8px);
+
+  transition:
+    opacity 0.35s ease;
+
+  z-index: -1;
+}
+
+.launch-btn:hover {
+  transform:
+    translateY(-4px)
+    scale(1.035);
+
+  box-shadow:
+    0 14px 40px rgba(247, 213, 98, 0.25),
+    0 0 28px rgba(71, 52, 127, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.launch-btn:hover::after {
+  opacity: 1;
+}
+
+.launch-btn:active {
+  transform:
+    translateY(-1px)
+    scale(0.97);
+
+  box-shadow:
+    0 5px 18px rgba(247, 213, 98, 0.18);
+}
+
+/* Estado de ignición */
+
+.launch-btn.is-igniting {
+  color: var(--c-lilac);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(71, 52, 127, 0.75),
+      rgba(39, 43, 86, 0.9)
+    );
+
+  border-color:
+    rgba(252, 244, 254, 0.2);
+
+  box-shadow:
+    0 0 30px rgba(71, 52, 127, 0.35),
+    inset 0 1px 0 rgba(252, 244, 254, 0.12);
+
+  transform:
+    scale(0.98);
+
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   Fase 1 — preparación
+   --------------------------------------------------------- */
+
+.landing.is-launching .launch-btn {
+  opacity: 0;
+
+  pointer-events: none;
+
+  transform:
+    translateY(18px)
+    scale(0.92);
+
+  transition:
+    opacity 0.35s ease,
+    transform 0.55s var(--ease-in-out);
+}
+
+.landing.is-launching .landing__footer {
+  opacity: 0;
+
+  transform:
+    translate(-50%, 12px);
+}
+
+.landing.is-launching .rocket {
+  animation:
+    rocket-ignition 0.7s
+    cubic-bezier(0.4, 0, 0.2, 1)
+    both;
+}
+
+@keyframes rocket-ignition {
+  0% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+
+  20% {
+    transform:
+      translateY(1px)
+      rotate(-0.8deg);
+  }
+
+  40% {
+    transform:
+      translateY(-1px)
+      rotate(0.8deg);
+  }
+
+  60% {
+    transform:
+      translateY(1px)
+      rotate(-0.5deg);
+  }
+
+  80% {
+    transform:
+      translateY(-2px)
+      rotate(0.4deg);
+  }
+
+  100% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+}
+
+.landing.is-launching .rocket__img {
+  filter:
+    drop-shadow(0 8px 22px rgba(71, 52, 127, 0.72))
+    drop-shadow(0 0 18px rgba(247, 213, 98, 0.22));
+}
+
+.landing.is-launching .rocket-wrap::before {
+  opacity: 1;
+
+  transform:
+    translateX(-50%)
+    scale(1.25);
+
+  filter: blur(18px);
+}
+
+/* La llama empieza a cargar */
+
+.landing.is-launching .rocket__flame {
+  animation:
+    flame-ignition 0.7s
+    ease-in-out
+    both;
+}
+
+@keyframes flame-ignition {
+  0% {
+    transform:
+      translateX(-50%)
+      scaleY(0.8)
+      scaleX(0.8);
+
+    opacity: 0.75;
+  }
+
+  45% {
+    transform:
+      translateX(-50%)
+      scaleY(1.7)
+      scaleX(1.15);
+
+    opacity: 1;
+
+    filter: blur(1px);
+  }
+
+  100% {
+    transform:
+      translateX(-50%)
+      scaleY(2.5)
+      scaleX(1.35);
+
+    opacity: 1;
+
+    filter: blur(2px);
+  }
+}
+
+/* ---------------------------------------------------------
+   Fase 2 — LIFTOFF
+   --------------------------------------------------------- */
+
+.landing.is-liftoff .rocket-wrap {
+  animation:
+    rocket-liftoff 1.05s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+@keyframes rocket-liftoff {
+  0% {
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+  10% {
+    transform:
+      translateY(6px)
+      scale(1.015);
+  }
+
+  35% {
+    transform:
+      translateY(-90px)
+      scale(1.025);
+  }
+
+  62% {
+    transform:
+      translateY(-310px)
+      scale(0.92);
+  }
+
+  82% {
+    transform:
+      translateY(-520px)
+      scale(0.76);
+  }
+
+  100% {
+    transform:
+      translateY(-780px)
+      scale(0.52);
+  }
+}
+
+.landing.is-liftoff .rocket__flame {
+  animation:
+    flame-liftoff 1.05s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+@keyframes flame-liftoff {
+  0% {
+    height: 34px;
+
+    transform:
+      translateX(-50%)
+      scaleY(1.2);
+
+    opacity: 1;
+  }
+
+  20% {
+    height: 65px;
+
+    transform:
+      translateX(-50%)
+      scaleY(1.7);
+
+    opacity: 1;
+  }
+
+  50% {
+    height: 120px;
+
+    transform:
+      translateX(-50%)
+      scaleY(2);
+
+    opacity: 1;
+  }
+
+  100% {
+    height: 250px;
+
+    transform:
+      translateX(-50%)
+      scaleY(2.7);
+
+    opacity: 0;
+  }
+}
+
+.landing.is-liftoff .rocket-wrap::before {
+  animation:
+    engine-glow 1.05s ease-out forwards;
+}
+
+@keyframes engine-glow {
+  0% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      scale(1.1);
+  }
+
+  45% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      scale(2);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      scale(3.5);
+  }
+}
+
+.landing.is-liftoff .rocket-wrap::after {
+  animation:
+    exhaust-cloud 1.05s ease-out forwards;
+}
+
+@keyframes exhaust-cloud {
+  0% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      scale(0.5);
+  }
+
+  20% {
+    opacity: 0.65;
+    transform:
+      translateX(-50%)
+      scale(1);
+  }
+
+  60% {
+    opacity: 0.5;
+    transform:
+      translateX(-50%)
+      scale(1.8);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      scale(3.2);
+  }
+}
+
+/* ---------------------------------------------------------
+   Fase 3 — Warp / transición
+   --------------------------------------------------------- */
+
+.landing.is-warping {
+  animation:
+    launch-warp 0.6s
+    cubic-bezier(0.65, 0, 0.35, 1)
+    forwards;
+}
+
+@keyframes launch-warp {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  45% {
+    transform: scale(1.08);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.28);
+    opacity: 0;
+  }
+}
+
+/*
+ * Las estrellas dejan de sentirse estáticas y pasan
+ * rápidamente hacia los bordes durante el warp.
+ */
+
+#app:has(.landing.is-warping) .star {
+  animation:
+    star-warp 0.6s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+@keyframes star-warp {
+  0% {
+    transform:
+      translate(0, 0)
+      scale(1);
+
+    opacity: 0.3;
+  }
+
+  100% {
+    transform:
+      translate(
+        calc((50vw - 50%) * 0.9),
+        calc((50vh - 50%) * 0.9)
+      )
+      scale(3.5);
+
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------
+   Respeto por reduced motion
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .landing.is-launching .rocket,
+  .landing.is-liftoff .rocket-wrap,
+  .landing.is-liftoff .rocket__flame,
+  .landing.is-liftoff .rocket-wrap::before,
+  .landing.is-liftoff .rocket-wrap::after,
+  .landing.is-warping,
+  #app:has(.landing.is-warping) .star {
+    animation: none !important;
+  }
+
+  .landing.is-launching .rocket-wrap {
+    transform: translateY(-100px);
+  }
+
+  .landing.is-warping {
     opacity: 0;
   }
 }
